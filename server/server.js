@@ -116,21 +116,79 @@ const parseAndStore = (data)=>
 } */
 
 };
+const findStudentArrayMean = (studentArray)=>{
+    const sum = studentArray.reduce((total,student) => total + student.scored);
+    const length = studentArray.length;
+    return sum/length;
+};
+
+const minMaxSumArray = (studentArray)=>{
+
+    return studentArray.reduce((acc, val) => {
+        acc[0] = ( acc[0] === undefined || val.scored < acc[0] ) ? val.scored : acc[0];
+        acc[1] = ( val.scored > acc[1] ) ? val.scored : acc[1];
+        acc[2] += val.scored;
+        return acc;
+    }, [,0,0]);
+};
+
+const sqrSumArray = (studentArray,mean)=>{
+    return studentArray.reduce((total,student)=>{
+        const diff = student.scored - mean;
+        const sqrDiff = diff * diff;
+        return total + sqrDiff;
+    },0);
+};
+//Percentile calculation
+const quantile = (sorted, q) => {
+  
+    const pos = (sorted.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    if (sorted[base + 1].scored !== undefined) {
+        return sorted[base].scored + rest * (sorted[base + 1].scored - sorted[base].scored);
+    } else {
+        return sorted[base].scored;
+    }
+};
+
+// sort array ascending
+const asc = arr => arr.sort((a, b) => a.scored - b.scored);
+
 //calculate Results
 const findResult = (testId)=>{
     const response = "Initial Response";
     const testIdToNum = parseInt(testId);
     console.log("testIdToNum:"+testIdToNum)
     const testIdIndex = searchIdIndex(testIdToNum);
-    console.log(typeof testIdToNum);
-    console.log(testIdIndex);
-    console.log( db[0].testId);
     
     if(testIdIndex === -1){
         return "Test ID Not Found";
     }
-    else{
-        return "Test ID Found";
+    else{//prepare response 
+        /*format sample:{"mean":65.0,"stddev":0.0,"min":65.0,"max":65.0,"p25":65.0,"p50":65.0,"p
+75":65.0,"count":1}*/
+        const response = {"mean":0.0,"stddev":0.0,"min":0.0,"max":0.0,"p25":0.0,"p50":0.0,
+        "p75":0.0,"count":0}
+        //const mean = findStudentArrayMean(db[testIdIndex].students);
+        const count = db[testIdIndex].students.length;
+        const minMaxSum = minMaxSumArray(db[testIdIndex].students);
+        const sum = minMaxSum[2];
+        const mean = sum/count;
+        const percentage = 100/db[testIdIndex].availableScore;
+        response["mean"] = mean*percentage;
+        response["min"] = minMaxSum[0]*percentage; 
+        response["max"] = minMaxSum[1]*percentage;
+        response["count"] = count;
+        const sqrSum = sqrSumArray(db[testIdIndex].students,mean);
+        //const stdDev = sqrSum/count;
+        response["stddev"] = sqrSum/count*percentage;
+        const sorted = asc(db[testIdIndex].students);
+        response["p25"] = quantile(sorted, .25)*percentage;
+        response["p50"] = quantile(sorted, .50)*percentage;
+        response["p75"] = quantile(sorted, .75)*percentage;
+        //return "Test ID Found";
+        return JSON.stringify(response);
     }
 
     return response;
