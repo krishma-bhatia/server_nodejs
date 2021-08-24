@@ -1,0 +1,25 @@
+{
+  "name": "http_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krishma-bhatia/server_nodejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krishma-bhatia/server_nodejs/issues"
+  },
+  "homepage": "https://github.com/krishma-bhatia/server_nodejs#readme",
+  "devDependencies": {
+    "mocha": "^9.1.0"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^3.19.0"
+  }
+}
